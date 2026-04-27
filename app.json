@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Campus Meal",
+    "slug": "campus-meal",
+    "version": "1.4.2",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4391f7"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.imthekaiwen.MenuApp",
+      "buildNumber": "1.4.2",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserTrackingUsageDescription": "Size daha iyi ve kişiselleştirilmiş bir reklam deneyimi sunabilmemiz için izninize ihtiyacımız var."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4391f7"
+      },
+      "versionCode": 6,
+      "edgeToEdgeEnabled": true,
+      "package": "com.imthekaiwen.MenuApp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-localization",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-9741784434528117~4181889401",
+          "iosAppId": "ca-app-pub-9741784434528117~2466631832"
+        }
+      ],
+      "expo-tracking-transparency"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3b6a66fd-a733-4af4-b4d7-8571a81ed8cd"
+      }
+    }
+  }
+}
