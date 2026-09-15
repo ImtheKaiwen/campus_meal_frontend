@@ -24,7 +24,7 @@
     "week": "week",
     "todayMenuReady": "Today's Menu is Ready!",
     "notificationBody": "Today is {{day}}. Check out what meals are waiting for you on campus!",
-    "notificationSuccess": "Notification successfully scheduled for {{date}} at 08:00 AM!",
+    "notificationSuccess": "Notification scheduled for {{date}} at {{time}}!",
     "notificationError": "An error occurred while scheduling notification: {{error}}",
     "pastDateError": "Cannot schedule a notification for a past date!",
     "swipeHint": "Swipe for other weeks",
@@ -73,6 +73,11 @@
     "noMenu": "No Menu Found",
     "dishes": "Dishes",
     "notifications": "Favorites",
-    "retry": "Retry"
+    "retry": "Retry",
+    "privacyOptions": "Ad privacy options",
+    "universityMenuNotificationTitle": "What's at school today?",
+    "dormBreakfastNotificationTitle": "This morning at the dorm",
+    "dormDinnerNotificationTitle": "This evening at the dorm",
+    "dailyMenuNotificationBody": "Today's menu includes {{dishes}}. Enjoy!"
   }
 }

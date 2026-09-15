@@ -8,19 +8,9 @@ import { useAppStore } from '../store/useAppStore';
 import { getTheme } from '../utils/theme';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
+import { DORM_CITIES, UNIVERSITIES } from '../constants/locations';
 
 const { width } = Dimensions.get('window');
-
-const CITIES = [
-  "Adana", "Ankara", "Antalya", "Çanakkale", "Erzurum", "Eskişehir",
-  "Gaziantep", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş",
-  "Karabük", "Kırklareli", "Konya", "Muş", "Sakarya", "Sivas", "Trabzon"
-];
-
-const UNIVERSITIES = [
-  { id: 'kbü', name: 'Karabük Üniversitesi' },
-  { id: 'ktü', name: 'Karadeniz Teknik Üniversitesi' }
-];
 
 const OnboardingScreen = () => {
   const { t, i18n } = useTranslation();
@@ -162,7 +152,7 @@ const OnboardingScreen = () => {
   };
 
   const renderCityStep = () => {
-    const filtered = CITIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
+    const filtered = DORM_CITIES.filter(c => c.toLocaleLowerCase('tr-TR').includes(search.toLocaleLowerCase('tr-TR')));
 
     return (
       <View style={styles.stepContainer}>

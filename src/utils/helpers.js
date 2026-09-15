@@ -17,6 +17,9 @@ export const syncDayjsLocale = (lang) => {
 export const parseMenuDate = (dateStr) => {
   if (!dateStr) return dayjs();
 
+  const isoDate = dayjs(dateStr, 'YYYY-MM-DD', true);
+  if (isoDate.isValid()) return isoDate;
+
   // Normalize Turkish characters for robust parsing
   let raw = dateStr.replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/Ş/g, 'ş').replace(/Ç/g, 'ç').replace(/Ö/g, 'ö').replace(/Ü/g, 'ü').replace(/Ğ/g, 'ğ');
   raw = raw.toLowerCase().trim();
@@ -63,13 +66,16 @@ export const parseMenuDate = (dateStr) => {
 export const normalizeDormData = (data) => {
   if (!data) return [];
 
+  if (Array.isArray(data?.data?.days)) data = data.data.days;
+  else if (Array.isArray(data?.days)) data = data.days;
+
   if (Array.isArray(data)) {
     return data.map(item => {
       const dishes = Array.isArray(item.yemekler) ? item.yemekler : (item.dishes || []);
       return {
         date: item.tarih || item.date || '',
         dateObj: parseMenuDate(item.tarih || item.date),
-        day: item.day || '',
+        day: item.day || item.weekday || '',
         dishes: dishes,
         kalori: item.kalori || item.calorieInfo || null
       };
@@ -183,8 +189,12 @@ export const calculateTotalCalories = (dishes) => {
   if (!dishes || !Array.isArray(dishes)) return 0;
   let total = 0;
   dishes.forEach(d => {
+    if (typeof d === 'object' && Number.isFinite(d?.calories_kcal)) {
+      total += d.calories_kcal;
+      return;
+    }
     const s = typeof d === 'string' ? d : (d.name || "");
-    const match = s.match(/\(\s*(\d+)\s*\)/);
+    const match = s.match(/\b(\d+)\s*kcal\b/i) || s.match(/\(\s*(\d+)\s*\)/);
     if (match) {
       total += parseInt(match[1]);
     }

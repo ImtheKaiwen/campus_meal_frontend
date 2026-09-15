@@ -27,19 +27,9 @@ import {
 } from '../utils/helpers';
 import { toggleMenuNotification, getReminders } from '../utils/notifications';
 import BannerAdComponent from '../components/ads/BannerAdComponent';
-import NativeAdComponent from '../components/ads/NativeAdComponent';
-import MRECAdComponent from '../components/ads/MRECAdComponent';
-import { useInterstitial } from '../hooks/useInterstitial';
-import { isAdsSupported } from '../utils/adsWrapper';
+import { DORM_CITIES, UNIVERSITIES } from '../constants/locations';
 
 const { width } = Dimensions.get('window');
-
-const UNIVERSITIES = [
-  { id: 'kbü', name: 'Karabük Üniversitesi' },
-  { id: 'ktü', name: 'Karadeniz Teknik Üniversitesi' }
-];
-
-const CITIES = ["Adana", "Ankara", "Antalya", "Çanakkale", "Erzurum", "Eskişehir", "Gaziantep", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Kırklareli", "Konya", "Muş", "Sakarya", "Sivas", "Trabzon"];
 
 const HomeScreen = ({ navigation }) => {
   const { t, language } = useTranslation();
@@ -63,16 +53,9 @@ const HomeScreen = ({ navigation }) => {
     loading: storeLoading,
     refreshing,
     setRefreshing,
-    fetchData,
-    incrementPageVisit,
-    lastAdTimestamp,
-    pageVisitCount
+    fetchData
   } = useAppStore();
   const isBannerLoaded = useAppStore(state => state.isBannerLoaded);
-
-
-  const { showAdIfReady } = useInterstitial();
-
   const [reminderMap, setReminderMap] = useState({});
   const [uniSearch, setUniSearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
@@ -323,11 +306,7 @@ const HomeScreen = ({ navigation }) => {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
       >
         {today ? (
-            <View>
-              <MRECAdComponent />
-              {renderDayCard(today)}
-              <NativeAdComponent />
-            </View>
+            <View>{renderDayCard(today)}</View>
         ) : (
           storeLoading ? (
             <View style={styles.centerContent}>
@@ -387,9 +366,7 @@ const HomeScreen = ({ navigation }) => {
             </View>
             {item.data.map((d, i) => (
               <View key={i}>
-                {i === 0 && <MRECAdComponent />}
                 {renderDayCard(d)}
-                {i === 2 && <NativeAdComponent />}
               </View>
             ))}
           </ScrollView>
@@ -446,8 +423,6 @@ const HomeScreen = ({ navigation }) => {
               <View key={cat.key} style={{ marginBottom: 24 }}>
                 <Text style={[styles.poolCatTitle, { color: colors.textSecondary }]}>{t(cat.label)}</Text>
                 {items.map(d => renderDishItem(d, true))}
-                {idx === 0 && <NativeAdComponent />}
-                {idx === 1 && <MRECAdComponent />}
               </View>
             );
           })}
@@ -458,7 +433,7 @@ const HomeScreen = ({ navigation }) => {
 
   const renderSelection = (type) => {
     const isUni = type === 'university';
-    const data = isUni ? UNIVERSITIES : CITIES;
+    const data = isUni ? UNIVERSITIES : DORM_CITIES;
     const search = isUni ? uniSearch : citySearch;
     const setSearch = isUni ? setUniSearch : setCitySearch;
     const setAction = isUni ? setUniversity : setDormCity;
@@ -480,7 +455,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         <FlatList 
-          data={data.filter(item => (isUni ? item.name : item).toLowerCase().includes(search.toLowerCase()))} 
+          data={data.filter(item => (isUni ? item.name : item).toLocaleLowerCase('tr-TR').includes(search.toLocaleLowerCase('tr-TR')))}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => {
             const label = isUni ? item.name : item;
@@ -547,11 +522,7 @@ const HomeScreen = ({ navigation }) => {
                 {['daily', 'weekly', 'pool'].map(key => (
                   <TouchableOpacity 
                     key={key} 
-                    onPress={() => {
-                      incrementPageVisit();
-                      showAdIfReady();
-                      setSubTab(key);
-                    }} 
+                    onPress={() => setSubTab(key)}
                     style={[styles.subTabBtn, subTab === key && { backgroundColor: colors.primary }]}
                   >
                     <Text style={[styles.subTabText, { color: subTab === key ? '#FFF' : colors.textSecondary }]}>{t(key)}</Text>
@@ -570,22 +541,14 @@ const HomeScreen = ({ navigation }) => {
 
           <TouchableOpacity 
             style={[styles.navItem, mainTab === 'university' && { backgroundColor: colors.primary + '10' }]} 
-            onPress={() => {
-              incrementPageVisit();
-              showAdIfReady();
-              setMainTab('university');
-            }}
+            onPress={() => setMainTab('university')}
           >
             <Feather name="book-open" size={18} color={mainTab === 'university' ? colors.primary : colors.textSecondary} />
             <Text style={[styles.navLabel, { color: mainTab === 'university' ? colors.primary : colors.textSecondary }]}>{t('university')}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.navItem, mainTab === 'dormitory' && { backgroundColor: colors.primary + '10' }]} 
-            onPress={() => {
-              incrementPageVisit();
-              showAdIfReady();
-              setMainTab('dormitory');
-            }}
+            onPress={() => setMainTab('dormitory')}
           >
             <Feather name="home" size={18} color={mainTab === 'dormitory' ? colors.primary : colors.textSecondary} />
             <Text style={[styles.navLabel, { color: mainTab === 'dormitory' ? colors.primary : colors.textSecondary }]}>{t('dormitory')}</Text>

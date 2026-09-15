@@ -8,8 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useAppStore } from '../store/useAppStore';
 import { getTheme } from '../utils/theme';
-import MRECAdComponent from '../components/ads/MRECAdComponent';
-import { useInterstitial } from '../hooks/useInterstitial';
+import { AdsConsent, isAdsSupported } from '../utils/adsWrapper';
 
 const SettingsScreen = () => {
   const { t } = useTranslation();
@@ -19,13 +18,11 @@ const SettingsScreen = () => {
     themeMode,
     primaryColor, setPrimaryColor,
     setFirstLaunch,
-    incrementPageVisit,
+    isPrivacyOptionsRequired,
     language,
     setLanguage,
     setThemeMode
   } = useAppStore();
-
-  const { showAdIfReady } = useInterstitial();
 
   const colors = getTheme(themeMode, primaryColor);
 
@@ -61,6 +58,15 @@ const SettingsScreen = () => {
         }
       ]
     );
+  };
+
+  const handlePrivacyOptions = async () => {
+    if (!isAdsSupported) return;
+    try {
+      await AdsConsent.showPrivacyOptionsForm();
+    } catch (error) {
+      if (__DEV__) console.warn('Privacy options failed to open:', error.message);
+    }
   };
 
 
@@ -106,8 +112,6 @@ const SettingsScreen = () => {
           <TouchableOpacity 
             style={[styles.backButton, { backgroundColor: colors.cardBackground }]} 
             onPress={() => {
-              incrementPageVisit();
-              showAdIfReady();
               navigation.goBack();
             }}
           >
@@ -156,6 +160,14 @@ const SettingsScreen = () => {
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Uygulama</Text>
+          {isPrivacyOptionsRequired && (
+            <SettingItem
+              icon="shield"
+              label={t('privacyOptions')}
+              onPress={handlePrivacyOptions}
+              color={colors.text}
+            />
+          )}
           <SettingItem
             icon="refresh-ccw"
             label={t('resetApp')}
@@ -163,8 +175,6 @@ const SettingsScreen = () => {
             color={colors.text}
           />
         </View>
-
-        <MRECAdComponent />
 
         <View style={styles.footer}>
           <Text style={[styles.versionText, { color: colors.textSecondary }]}>Versiyon 1.4.2 • Premium Edition</Text>

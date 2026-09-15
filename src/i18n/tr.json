@@ -24,7 +24,7 @@
     "week": "hafta",
     "todayMenuReady": "Bugünkü Menü Hazır!",
     "notificationBody": "Bugün {{day}}. Kampüste seni hangi yemeklerin beklediğine göz at!",
-    "notificationSuccess": "{{date}} sabahı saat 08:00 için bildirim başarıyla kuruldu!",
+    "notificationSuccess": "{{date}} için {{time}} bildirimi kuruldu!",
     "notificationError": "Bildirim kurulurken bir hata oluştu: {{error}}",
     "pastDateError": "Geçmiş bir tarih için bildirim kurulamaz!",
     "swipeHint": "Diğer haftalar için kaydır",
@@ -73,6 +73,11 @@
     "noMenu": "Menü Bulunamadı",
     "dishes": "Yemekler",
     "notifications": "Favorilerim",
-    "retry": "Yenile"
+    "retry": "Yenile",
+    "privacyOptions": "Reklam gizlilik seçenekleri",
+    "universityMenuNotificationTitle": "Bugün okulda ne var?",
+    "dormBreakfastNotificationTitle": "Yurtta bu sabah",
+    "dormDinnerNotificationTitle": "Yurtta bu akşam",
+    "dailyMenuNotificationBody": "{{dishes}} var. Afiyet olsun!"
   }
 }

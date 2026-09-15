@@ -5,10 +5,14 @@ import { AD_UNIT_IDS } from '../../utils/ads';
 import { useAppStore } from '../../store/useAppStore';
 
 const BannerAdComponent = () => {
-  const { setIsBannerLoaded } = useAppStore();
+  const { isAdsReady, setIsBannerLoaded } = useAppStore();
   const [loaded, setLoaded] = React.useState(false);
 
-  if (!isAdsSupported) return null;
+  React.useEffect(() => {
+    return () => setIsBannerLoaded(false);
+  }, [setIsBannerLoaded]);
+
+  if (!isAdsSupported || !isAdsReady) return null;
 
   return (
     <View style={[styles.container, !loaded && { height: 0 }]}>
@@ -23,6 +27,7 @@ const BannerAdComponent = () => {
           setIsBannerLoaded(true);
         }}
         onAdFailedToLoad={(error) => {
+          if (__DEV__) console.warn('Banner ad failed to load:', error);
           setLoaded(false);
           setIsBannerLoaded(false);
         }}

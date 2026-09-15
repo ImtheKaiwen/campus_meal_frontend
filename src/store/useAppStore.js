@@ -9,7 +9,7 @@ export const useAppStore = create(
   persist(
     (set, get) => ({
       university: null,
-      dormCity: 'KARABÜK',
+      dormCity: null,
       themeMode: 'light',
       language: i18n.language,
       isFirstLaunch: true,
@@ -18,9 +18,9 @@ export const useAppStore = create(
       subTab: 'daily',
       dormMealType: 'aksam',
       
-      // Ad stats
-      lastAdTimestamp: 0,
-      pageVisitCount: 0,
+      // Ad state is intentionally session-only.
+      isAdsReady: false,
+      isPrivacyOptionsRequired: false,
       isBannerLoaded: false,
       
       // Initial colors
@@ -66,9 +66,9 @@ export const useAppStore = create(
       setDormMealType: (type) => set({ dormMealType: type }),
       setRefreshing: (val) => set({ refreshing: val }),
 
-      incrementPageVisit: () => set((state) => ({ pageVisitCount: state.pageVisitCount + 1 })),
+      setIsAdsReady: (val) => set({ isAdsReady: val }),
+      setIsPrivacyOptionsRequired: (val) => set({ isPrivacyOptionsRequired: val }),
       setIsBannerLoaded: (val) => set({ isBannerLoaded: val }),
-      resetAdStats: () => set({ lastAdTimestamp: Date.now(), pageVisitCount: 0 }),
 
       fetchData: async (refresh = false) => {
         const { university, dormCity, mainTab } = get();
@@ -105,7 +105,7 @@ export const useAppStore = create(
       resetAll: async () => {
         set({
           university: null,
-          dormCity: 'KARABÜK',
+          dormCity: null,
           themeMode: 'light',
           language: 'tr',
           isFirstLaunch: true,
@@ -132,9 +132,6 @@ export const useAppStore = create(
         isFirstLaunch: state.isFirstLaunch,
         primaryColor: state.primaryColor,
         favorites: state.favorites,
-        lastAdTimestamp: state.lastAdTimestamp,
-        pageVisitCount: state.pageVisitCount,
-        // isBannerLoaded buraya EKLENMEDİ, yani her açılışta false başlayacak
       }),
       // On rehydrate, ensure colors are recalculated from persisted state
       onRehydrateStorage: () => (state) => {

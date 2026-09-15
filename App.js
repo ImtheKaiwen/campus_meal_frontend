@@ -1,58 +1,73 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 import AppNavigator from './src/navigation/AppNavigator';
-import { AD_UNIT_IDS } from './src/utils/ads';
-import { mobileAds, AppOpenAd, AdEventType, isAdsSupported } from './src/utils/adsWrapper';
+import { mobileAds, AdsConsent, isAdsSupported } from './src/utils/adsWrapper';
+import { useAppStore } from './src/store/useAppStore';
+import { fetchDormMenuData, fetchMenuData } from './src/utils/api';
+import { syncDormMenuNotifications, syncUniversityMenuNotifications } from './src/utils/notifications';
 
 // i18n dosyamızı en tepede çağırıyoruz ki dil ayarları yüklensin
 import './src/i18n';
 
 export default function App() {
+  const setIsAdsReady = useAppStore(state => state.setIsAdsReady);
+  const setIsPrivacyOptionsRequired = useAppStore(state => state.setIsPrivacyOptionsRequired);
+  const university = useAppStore(state => state.university);
+  const dormCity = useAppStore(state => state.dormCity);
+  const isFirstLaunch = useAppStore(state => state.isFirstLaunch);
+
   useEffect(() => {
     const initializeAds = async () => {
+      if (!isAdsSupported) return;
+
       try {
-        // iOS için ATT izin isteği
-        const { status } = await requestTrackingPermissionsAsync();
+        const consent = await AdsConsent.gatherConsent({
+          tagForUnderAgeOfConsent: false,
+        });
+        setIsPrivacyOptionsRequired(consent.privacyOptionsRequirementStatus === 'REQUIRED');
+        if (!consent.canRequestAds) return;
 
-        // AdMob SDK'yı başlat (Expo Go'da çökmemesi için kontrol ekliyoruz)
-        if (mobileAds && typeof mobileAds === 'function') {
-          const ads = mobileAds();
-          
-          // Test cihazlarını buraya ekleyebilirsiniz (Konsoldaki 'Test Device ID'yi buraya yazın)
+        const ads = mobileAds();
+        if (__DEV__) {
           await ads.setRequestConfiguration({
-            testDeviceIdentifiers: [
-              'EMULATOR',
-              '8F01B083-7FE1-4374-8DD7-0239AC4FFCF1', // iOS Cihazı
-              'd49cf9c8-6551-42c2-9951-6107acfd958a', // Android Cihazı
-            ],
+            testDeviceIdentifiers: ['EMULATOR'],
           });
-          
-          await ads.initialize();
         }
-
-        // App Open Ad hazırlığı
-        try {
-          const appOpenAd = AppOpenAd.createForAdRequest(AD_UNIT_IDS.APP_OPEN, {
-            requestNonPersonalizedAdsOnly: true,
-          });
-
-          appOpenAd.addAdEventListener(AdEventType.LOADED, () => {
-            appOpenAd.show();
-          });
-
-          appOpenAd.load();
-        } catch (adError) {
-          console.log('App Open Ad initialization skipped (likely Expo Go)');
-        }
+        await ads.initialize();
+        setIsAdsReady(true);
       } catch (error) {
-        console.log('Ads initialization skipped or failed:', error.message);
+        if (__DEV__) console.warn('Ads initialization failed:', error.message);
       }
     };
 
     initializeAds();
-  }, []);
+  }, [setIsAdsReady, setIsPrivacyOptionsRequired]);
+
+  useEffect(() => {
+    if (isFirstLaunch) return;
+
+    const syncNotifications = async () => {
+      const jobs = university
+        ? [fetchMenuData(university).then(data => syncUniversityMenuNotifications(data, university))]
+        : [syncUniversityMenuNotifications(null, null)];
+
+      jobs.push(
+        dormCity
+          ? fetchDormMenuData(dormCity).then(data => syncDormMenuNotifications(data, dormCity))
+          : syncDormMenuNotifications(null, null)
+      );
+
+      const results = await Promise.allSettled(jobs);
+      if (__DEV__) {
+        results.filter(result => result.status === 'rejected').forEach(result => {
+          console.warn('Notification sync failed:', result.reason?.message || result.reason);
+        });
+      }
+    };
+
+    syncNotifications();
+  }, [dormCity, isFirstLaunch, university]);
 
   return (
     <SafeAreaProvider>
@@ -62,5 +77,3 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
-
-// Small change to trigger bundler refresh
